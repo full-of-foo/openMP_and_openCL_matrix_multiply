@@ -1,4 +1,4 @@
-#include "dbg.h"
+#include "../src/dbg.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -93,17 +93,21 @@ error:
 
 int main(int argc, char *argv[])
 {
+    // TODO - pass this in test runner
+    argc = 2;
+    argv[1] = 'test';
+
     check(argc == 2, "Need an argument.");
 
     log_info("******************************************");
-    log_info("Running test_dbg (some error outputs may be expected output)");
+    log_info(" Error outputs are expected");
     log_info("******************************************");
     test_debug();
     test_log_err();
     test_log_warn();
     test_log_info();
 
-    check(test_check("matrix_utils/test_dbg.c") == 0, "failed with matrix_utils/test_dbg.c");
+    check(test_check("matrix_utils/tests/dbg_test.c") == 0, "failed with matrix_utils/tests/dbg_test.c");
     check(test_check(argv[1]) == -1, "failed with argv");
     check(test_sentinel(1) == 0, "test_sentinel failed.");
     check(test_sentinel(100) == -1, "test_sentinel failed.");
