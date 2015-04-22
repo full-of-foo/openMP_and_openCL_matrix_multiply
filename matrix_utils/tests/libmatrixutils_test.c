@@ -1,8 +1,11 @@
 #include <miniunit.h>
 
-char *test_a_test()
+char *test_matrix()
 {
-    mu_assert(1 == 1, "Should not fail");
+    struct Matrix *matrix = Matrix_create(2, 2, 3);
+    mu_assert(matrix != NULL, "matrix should not be NULL");
+
+    Matrix_destroy(matrix);
 
     return NULL;
 }
@@ -10,7 +13,7 @@ char *test_a_test()
 char *all_tests() {
     mu_suite_start();
 
-    test_a_test();
+    test_matrix();
 
     return NULL;
 }
