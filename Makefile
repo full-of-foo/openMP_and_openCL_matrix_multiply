@@ -4,28 +4,31 @@ OPENMP_DIR=openMP_app/
 
 CC=gcc-4.9
 AR=ar
-CFLAGS=-g -Wall -DNDEBUG -fopenmp $(OPTFLAGS)
+CFLAGS=-std=c99 -Wall -g -DNDEBUG -fopenmp $(OPTFLAGS)
 CLIBFLAGS=-I$(CURDIR)/$(UTILS_LIB_DIR)
+
+AR_TARGET=$(UTILS_LIB_DIR)/libmatrixutils.a
+OPENMP_TARGET=$(OPENMP_DIR)bin/app
 
 DEP_SOURCES=$(wildcard $(UTILS_DIR)src/**/*.c $(UTILS_DIR)src/*.c)
 DEP_OBJECTS=$(patsubst %.c,%.o,$(DEP_SOURCES))
 TEST_SRC=$(wildcard */tests/*_test.c)
 TESTS=$(patsubst %.c,%,$(TEST_SRC))
 SOURCES=$(wildcard $(OPENMP_DIR)src/**/*.c $(OPENMP_DIR)src/*.c)
+OBJECTS=$(AR_TARGET) $(OPENMP_TARGET) $(DEP_OBJECTS) $(TESTS)
 
-AR_TARGET=$(UTILS_LIB_DIR)/libmatrixutils.a
+all: build openMP tests
 
+build-deps: CFLAGS += -fPIC $(CLIBFLAGS)
+build-deps: $(DEP_OBJECTS)
+	$(AR) rcs $(AR_TARGET) $(DEP_OBJECTS)
+	ranlib $(AR_TARGET)
 
-all: $(AR_TARGET) tests
-
-$(AR_TARGET): CFLAGS += -fPIC $(CLIBFLAGS)
-$(AR_TARGET): build $(DEP_OBJECTS)
-	$(AR) rcs $@ $(DEP_OBJECTS)
-	ranlib $@
-	$(CC) $(CFLAGS) openMP_app/src/app.c $(AR_TARGET) -o openMP_app/bin/app
-
-build:
+build: build-deps
 	@mkdir -p $(OPENMP_DIR)bin
+
+openMP: build
+	$(CC) $(CFLAGS) $(CLIBFLAGS) $(SOURCES) $(AR_TARGET) -o $(OPENMP_TARGET)
 
 .PHONY: tests
 tests: CFLAGS += $(AR_TARGET)
@@ -33,11 +36,14 @@ tests: CFLAGS += $(CLIBFLAGS)
 tests: $(TESTS) clean-logs
 	sh ./runtests.sh
 
+profile: openMP
+	instruments -t "Time Profiler" $(OPENMP_TARGET)
+
 clean-logs:
 	$(RM)r **/tests/tests.log
 
 clean: clean-logs
-	$(RM)r $(AR_TARGET) $(DEP_OBJECTS) $(TESTS)
+	$(RM)r $(OBJECTS)
 	find . -name "*.gc*" -exec rm {} \;
 	$(RM)r `find . -name "*.dSYM" -print`
 

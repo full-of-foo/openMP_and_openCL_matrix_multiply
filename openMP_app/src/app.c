@@ -1,9 +1,9 @@
-#include <stdio.h>
-#include "libmatrixutils.h"
+#include "matrixutils.h"
 
 int main (int argc, char *argv[])
 {
-    struct Matrix *matrix = Matrix_create(2, 2, 3);
-    Matrix_print(matrix);
-    Matrix_destroy(matrix);
+    struct MATRIX matrix;
+    matrix = matrix_create(2, 2, 3);
+    matrix_print(matrix);
+    matrix_destroy(matrix);
 }
