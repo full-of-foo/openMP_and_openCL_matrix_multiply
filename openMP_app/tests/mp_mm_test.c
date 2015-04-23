@@ -1,7 +1,7 @@
 #include <miniunit.h>
 #include <dbg.h>
 #include "matrixutils.h"
-#include "openmp_app.h"
+#include "mp_mm.h"
 
 char *test_good_demensions_1()
 {
