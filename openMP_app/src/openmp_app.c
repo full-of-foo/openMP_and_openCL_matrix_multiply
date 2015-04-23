@@ -1,7 +1,5 @@
 #include <omp.h>
 #include <dbg.h>
-#include <assert.h>
-#include <stdlib.h>
 #include "matrixutils.h"
 
 
@@ -22,22 +20,4 @@ struct MATRIX *matrix_multiply(struct MATRIX *mA, struct MATRIX *mB)
     return mC;
 error:
     return NULL;
-}
-
-int main (int argc, char *argv[])
-{
-    struct MATRIX *mA = matrix_create(2, 3, 3);
-    struct MATRIX *mB = matrix_create(2, 3, 3);
-
-    struct MATRIX *mC = matrix_multiply(mA, mB);
-    check(mC != NULL, "...exiting");
-
-    matrix_print(mC);
-    matrix_destroy(mA);
-    matrix_destroy(mB);
-    matrix_destroy(mC);
-
-    return 0;
-error:
-    return 1;
 }

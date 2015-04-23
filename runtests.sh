@@ -1,4 +1,6 @@
+echo ""
 echo "Running unit tests:"
+echo ""
 
 for i in */tests/*_test
 do

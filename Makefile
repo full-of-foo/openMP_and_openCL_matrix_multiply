@@ -1,53 +1,67 @@
 UTILS_DIR=matrix_utils/
 UTILS_LIB_DIR=$(UTILS_DIR)src
 OPENMP_DIR=openMP_app/
+OPENMP_LIB_DIR=$(OPENMP_DIR)src
 
 CC=gcc-4.9
 AR=ar
 CFLAGS=-std=c99 -Wall -g -DNDEBUG -fopenmp $(OPTFLAGS)
-CLIBFLAGS=-I$(CURDIR)/$(UTILS_LIB_DIR)
+UTILS_CLIBFLAGS=-I$(CURDIR)/$(UTILS_LIB_DIR)
+OPENMP_CLIBFLAGS=-I$(CURDIR)/$(OPENMP_LIB_DIR)
 
-AR_TARGET=$(UTILS_LIB_DIR)/libmatrixutils.a
-OPENMP_TARGET=$(OPENMP_DIR)bin/app
+UTILS_AR_TARGET=$(UTILS_LIB_DIR)/libmatrixutils.a
+OPENMP_AR_TARGET=$(OPENMP_LIB_DIR)/openmp_app.a
+OPENMP_TARGET=$(OPENMP_DIR)bin/openmp_app
 
-DEP_SOURCES=$(wildcard $(UTILS_DIR)src/**/*.c $(UTILS_DIR)src/*.c)
-DEP_OBJECTS=$(patsubst %.c,%.o,$(DEP_SOURCES))
-TEST_SRC=$(wildcard */tests/*_test.c)
-TESTS=$(patsubst %.c,%,$(TEST_SRC))
-SOURCES=$(wildcard $(OPENMP_DIR)src/**/*.c $(OPENMP_DIR)src/*.c)
-OBJECTS=$(AR_TARGET) $(OPENMP_TARGET) $(DEP_OBJECTS) $(TESTS)
+UTILS_SOURCES=$(wildcard $(UTILS_DIR)src/**/*.c $(UTILS_DIR)src/*.c)
+UTILS_OBJECTS=$(patsubst %.c,%.o,$(UTILS_SOURCES))
+UTILS_TEST_SOURCES=$(wildcard $(UTILS_DIR)tests/*_test.c)
+UTILS_TESTS=$(patsubst %.c,%,$(UTILS_TEST_SOURCES))
 
-all: build openMP tests
+OPENMP_SOURCES=$(wildcard $(OPENMP_DIR)src/**/*.c $(OPENMP_DIR)src/*.c)
+OPENMP_OBJECTS=$(patsubst %.c,%.o,$(OPENMP_SOURCES))
+OPENMP_TEST_SOURCES=$(wildcard $(OPENMP_DIR)tests/*_test.c)
+OPENMP_TESTS=$(patsubst %.c,%,$(OPENMP_TEST_SOURCES))
 
-build-deps: CFLAGS += -fPIC $(CLIBFLAGS)
-build-deps: $(DEP_OBJECTS)
-	$(AR) rcs $(AR_TARGET) $(DEP_OBJECTS)
-	ranlib $(AR_TARGET)
+SOURCES=$(UTILS_SOURCES) $(OPENMP_SOURCES)
+OBJECTS=$(UTILS_AR_TARGET) $(OPENMP_AR_TARGET) $(OPENMP_TARGET) $(OPENMP_OBJECTS) $(UTILS_OBJECTS) $(UTILS_TESTS)
 
-build: build-deps
-	@mkdir -p $(OPENMP_DIR)bin
+all: build tests
 
-openMP: build
-	$(CC) $(CFLAGS) $(CLIBFLAGS) $(SOURCES) $(AR_TARGET) -o $(OPENMP_TARGET)
+build: build-utils build-openMP
 
-.PHONY: tests
-tests: CFLAGS += $(AR_TARGET)
-tests: CFLAGS += $(CLIBFLAGS)
-tests: $(TESTS) clean-logs
+build-utils: CFLAGS += -fPIC $(UTILS_CLIBFLAGS)
+build-utils: $(UTILS_OBJECTS)
+	$(AR) rcs $(UTILS_AR_TARGET) $(UTILS_OBJECTS)
+	ranlib $(UTILS_AR_TARGET)
+
+build-openMP: build-utils
+build-openMP: CFLAGS += -fPIC $(UTILS_CLIBFLAGS)
+build-openMP: $(OPENMP_OBJECTS)
+	$(AR) rcs $(OPENMP_AR_TARGET) $(OPENMP_OBJECTS)
+	ranlib $(OPENMP_AR_TARGET)
+
+tests: build tests-utils tests-openMp clean-logs
 	sh ./runtests.sh
 
-profile: openMP
-	instruments -t "Time Profiler" $(OPENMP_TARGET)
+tests-utils: CFLAGS += $(UTILS_CLIBFLAGS) $(UTILS_AR_TARGET)
+tests-utils: $(UTILS_TESTS)
 
-clean-logs:
-	$(RM)r **/tests/tests.log
+tests-openMp: CFLAGS += $(OPENMP_CLIBFLAGS) $(UTILS_CLIBFLAGS) $(OPENMP_AR_TARGET) $(UTILS_AR_TARGET)
+tests-openMp: $(OPENMP_TESTS)
+
+profile: build-openMP
+	instruments -t "Time Profiler" $(OPENMP_TARGET)
 
 clean: clean-logs
 	$(RM)r $(OBJECTS)
 	find . -name "*.gc*" -exec rm {} \;
 	$(RM)r `find . -name "*.dSYM" -print`
 
+clean-logs:
+	$(RM)r **/tests/tests.log
+
 BADFUNCS='[^_.>a-zA-Z0-9](str(n?cpy|n?cat|xfrm|n?dup|str|pbrk|tok|_)|stpn?cpy|a?sn?printf|byte_)'
 check:
 	@echo Files with potentially dangerous functions:
-	@egrep $(BADFUNCS) $(SOURCES) $(DEP_SOURCES) $(TEST_SRC) || true
+	@egrep $(BADFUNCS) $(SOURCES) || true
