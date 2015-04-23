@@ -1,50 +1,45 @@
 #include <omp.h>
-#include <assert.h>
 #include <dbg.h>
 #include <stdio.h>
 #include "matrixutils.h"
 
-struct MATRIX matrix_create(int rows, int cols, int s)
+struct MATRIX *matrix_create(int rows, int cols, float s)
 {
-    struct MATRIX matrix;
-    matrix.rows = rows;
-    matrix.cols = cols;
-    matrix.A = (int *) malloc(sizeof(int)*rows*cols);
+    struct MATRIX *matrix = malloc(sizeof(struct MATRIX));;
+    matrix->rows = rows;
+    matrix->cols = cols;
+    matrix->A = malloc(rows * sizeof(float *));
 
-    unsigned int i,j;
-#pragma omp parallel private(i,j)
-{
-#pragma omp for schedule(static)
-    for(i=0; i<rows; i++) {
-        for(j=0; j<cols; j++)
-            matrix.A[i + j * matrix.cols] = s;
+    int i, j;
+    #pragma omp parallel private(i, j)
+    {
+        #pragma omp for schedule(static)
+        for(i=0; i<rows; i++) {
+            matrix->A[i] = malloc(cols * sizeof(int));
+            for(j=0; j<cols; j++)
+                matrix->A[i][j] = s;
+        }
     }
-}
+
     return matrix;
 }
 
-void matrix_destroy(struct MATRIX matrix)
+void matrix_destroy(struct MATRIX *matrix)
 {
-    free(matrix.A);
+    free(matrix->A);
+    free(matrix);
 }
 
-int cell_at(struct MATRIX matrix, int i, int j)
+void matrix_print(struct MATRIX *matrix)
 {
-    return matrix.A[i + j * matrix.cols];
-}
+    log_info("rows: %d", matrix->rows);
+    log_info("cols: %d", matrix->cols);
 
-void matrix_print(struct MATRIX matrix)
-{
-    assert(matrix != NULL);
-
-    log_info("rows: %d", matrix.rows);
-    log_info("cols: %d", matrix.cols);
-
-    unsigned int i,j;
-    for(i=0; i<matrix.rows; i++) {
+    int i,j;
+    for(i=0; i<matrix->rows; i++) {
         printf("| ");
-        for(j=0; j<matrix.cols; j++)
-          printf("%d ", cell_at(matrix,j,i));
+        for(j=0; j<matrix->cols; j++)
+          printf("%f ", matrix->A[i][j]);
         printf("|\n");
     }
 }

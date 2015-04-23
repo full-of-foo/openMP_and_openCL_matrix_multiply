@@ -5,15 +5,14 @@ struct MATRIX
 {
     int rows;
     int cols;
-    int *A;
+    int initialized;
+    float **A;
 };
 
-struct MATRIX matrix_create(int m, int n, int s);
+struct MATRIX *matrix_create(int m, int n, float s);
 
-void matrix_destroy(struct MATRIX matrix);
+void matrix_destroy(struct MATRIX *matrix);
 
-int cell_at(struct MATRIX matrix, int i, int j);
-
-void matrix_print(struct MATRIX matrix);
+void matrix_print(struct MATRIX *matrix);
 
 #endif
