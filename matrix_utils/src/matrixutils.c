@@ -8,10 +8,10 @@ struct MATRIX *matrix_create(float **A_p)
     struct MATRIX *matrix = malloc(sizeof(struct MATRIX));
     matrix->rows = (sizeof(A_p)/sizeof(A_p[0]))+1;
     matrix->cols = (sizeof(A_p[0])/sizeof(A_p[0][0]))+1;
-
     matrix->A = (float **) malloc(matrix->rows*sizeof(float *));
 
     int i,j;
+    #pragma omp parallel for private(i,j) shared(A_p,matrix)
     for(i=0; i<matrix->rows; i++){
         matrix->A[i] = (float *) malloc(matrix->cols*sizeof(float));
         for (j=0; j<matrix->cols; j++){
@@ -30,15 +30,13 @@ struct MATRIX *matrix_create_scalar(unsigned int rows, unsigned int cols, float 
     matrix->A = malloc(rows * sizeof(float *));
 
     int i, j;
-    #pragma omp parallel private(i, j)
-    {
-        #pragma omp for schedule(static)
-        for(i=0; i<rows; i++) {
-            matrix->A[i] = malloc(cols * sizeof(float));
-            for(j=0; j<cols; j++)
-                matrix->A[i][j] = s;
-        }
+    #pragma omp parallel for private(i,j) shared(matrix,rows,cols,s)
+    for(i=0; i<rows; i++) {
+        matrix->A[i] = malloc(cols * sizeof(float));
+        for(j=0; j<cols; j++)
+            matrix->A[i][j] = s;
     }
+
 
     return matrix;
 }

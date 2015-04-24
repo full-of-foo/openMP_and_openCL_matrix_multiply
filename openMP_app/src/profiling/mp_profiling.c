@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
                                                              demensions[i][0],demensions[i][1]));
         }
     }
+
     // print CSV data
     for(i=0; i<data_row_count; i++) {
         for(j=0; j<RUNS_PER_BENCHMARK+1; j++){
