@@ -19,13 +19,15 @@ float get_benchmark_time(unsigned int aRows, unsigned int aCols, unsigned int bR
 {
     struct MATRIX *mA = matrix_create_scalar(aRows, aCols, 3);
     struct MATRIX *mB = matrix_create_scalar(bRows, bCols, 3);
+    struct MATRIX *mC = matrix_create_scalar(aRows, aCols, 0);
 
     timestamp_t t0 = get_timestamp();
-    matrix_multiply(mA->A, mB->A, aRows, aCols, bRows, bCols);
+    matrix_multiply(mA->A, mB->A, mC->A, aRows, aCols, bRows, bCols);
     timestamp_t t1 = get_timestamp();
 
     matrix_destroy(mA);
     matrix_destroy(mB);
+    matrix_destroy(mC);
     return ((t1 - t0) / 1000000.0L);
 }
 
