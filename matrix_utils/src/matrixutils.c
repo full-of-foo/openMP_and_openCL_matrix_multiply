@@ -6,22 +6,23 @@
 struct MATRIX *matrix_create(float **A_p)
 {
     struct MATRIX *matrix = malloc(sizeof(struct MATRIX));
-    matrix->rows = (sizeof(A_p) / sizeof(float));
-    matrix->cols = (sizeof(A_p[0]) / sizeof(float));
-    matrix->A = malloc(matrix->rows * sizeof(float *));
+    matrix->rows = (sizeof(A_p)/sizeof(A_p[0]))+1;
+    matrix->cols = (sizeof(A_p[0])/sizeof(A_p[0][0]))+1;
 
-    int i;
-    #pragma omp parallel private(i)
-    {
-        #pragma omp for schedule(static)
-        for(i=0; i<matrix->rows; i++)
-            memcpy(&matrix->A[i], &A_p[i], sizeof(A_p));
+    matrix->A = (float **) malloc(matrix->rows*sizeof(float *));
+
+    int i,j;
+    for(i=0; i<matrix->rows; i++){
+        matrix->A[i] = (float *) malloc(matrix->cols*sizeof(float));
+        for (j=0; j<matrix->cols; j++){
+            matrix->A[i][j] = A_p[i][j];
+        }
     }
 
     return matrix;
 }
 
-struct MATRIX *matrix_create_scalar(int rows, int cols, float s)
+struct MATRIX *matrix_create_scalar(unsigned int rows, unsigned int cols, float s)
 {
     struct MATRIX *matrix = malloc(sizeof(struct MATRIX));;
     matrix->rows = rows;

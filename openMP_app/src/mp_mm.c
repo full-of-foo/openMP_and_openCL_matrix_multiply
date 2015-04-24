@@ -1,24 +1,27 @@
 #include <omp.h>
+#include <stdio.h>
 #include <dbg.h>
-#include "matrixutils.h"
 
-
-struct MATRIX *matrix_multiply(struct MATRIX *mA, struct MATRIX *mB)
+float **matrix_multiply(float **A_p, float **B_p, int aRows, int aCols, int bRows, int bCols)
 {
-    int isSquares = mA->rows == mB->rows && mA->cols == mB->cols;
-    int isValidNonSquares = mA->cols == mB->rows;
+    int isSquares = aRows == bRows && aCols == bCols;
+    int isValidNonSquares = aCols == bRows;
     check(isSquares || isValidNonSquares, "Matrix demensions must agree");
 
-    struct MATRIX *mC = matrix_create_scalar(mA->rows, mA->cols, 0);
+    float **C_p = (float **) malloc(aRows*sizeof(float *));
     int i, j, k;
+    for(i=0; i<aRows; i++){
+        C_p[i] = (float *) malloc(aCols*sizeof(float));
+        for(j=0; j<aCols; j++){
+            float s = 0.0;
+            for(k=0; k<bRows; k++){
+                s += (A_p[i][k] * B_p[k][j]);
+            }
+            C_p[i][j] = s;
+        }
+    }
 
-    // #pragma omp parallel for default(none) private(i,j,k) shared(mC->A,mB->A,mC->A,mA->rows,mA->cols,mB->rows)
-    for(i=0; i<mA->rows; i++)
-        for(j=0; j<mA->cols; j++)
-            for(k=0; k<mB->rows; k++)
-                mC->A[i][j] += (mA->A[i][k] * mB->A[k][j]);
-
-    return mC;
+    return C_p;
 error:
     return NULL;
 }

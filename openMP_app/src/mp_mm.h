@@ -1,6 +1,6 @@
-#ifndef _openmp_app_h
-#define _openmp_app_h
+#ifndef _mp_app_h
+#define _mp_app_h
 
-struct MATRIX *matrix_multiply(struct MATRIX *mA, struct MATRIX *mB);
+float **matrix_multiply(float **A_p, float **B_p, int aRows, int aCols, int bRows, int bCols);
 
 #endif

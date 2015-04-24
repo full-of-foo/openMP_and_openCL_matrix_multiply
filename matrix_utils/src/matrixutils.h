@@ -3,18 +3,19 @@
 
 struct MATRIX
 {
-    int rows;
-    int cols;
-    int initialized;
+    unsigned int rows;
+    unsigned int cols;
     float **A;
 };
 
 struct MATRIX *matrix_create(float **A_p);
 
-struct MATRIX *matrix_create_scalar(int m, int n, float s);
+struct MATRIX *matrix_create_scalar(unsigned int m, unsigned int n, float s);
 
 void matrix_destroy(struct MATRIX *matrix);
 
 void matrix_print(struct MATRIX *matrix);
+
+float **get_empty_C_p(int aRows, int aCols);
 
 #endif
