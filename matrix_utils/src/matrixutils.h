@@ -9,7 +9,9 @@ struct MATRIX
     float **A;
 };
 
-struct MATRIX *matrix_create(int m, int n, float s);
+struct MATRIX *matrix_create(float **A_p);
+
+struct MATRIX *matrix_create_scalar(int m, int n, float s);
 
 void matrix_destroy(struct MATRIX *matrix);
 

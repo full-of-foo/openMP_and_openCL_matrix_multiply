@@ -5,8 +5,8 @@
 
 char *test_good_demensions_1()
 {
-    struct MATRIX *mA = matrix_create(2, 3, 3);
-    struct MATRIX *mB = matrix_create(2, 3, 3);
+    struct MATRIX *mA = matrix_create_scalar(2, 3, 3);
+    struct MATRIX *mB = matrix_create_scalar(2, 3, 3);
     mu_assert(mA != NULL, "mA instance should not be NULL");
     mu_assert(mB != NULL, "mB instance should not be NULL");
 
@@ -26,8 +26,8 @@ char *test_good_demensions_1()
 
 char *test_good_demensions_2()
 {
-    struct MATRIX *mA = matrix_create(2, 2, 2);
-    struct MATRIX *mB = matrix_create(2, 4, 2);
+    struct MATRIX *mA = matrix_create_scalar(2, 2, 2);
+    struct MATRIX *mB = matrix_create_scalar(2, 4, 2);
     mu_assert(mA != NULL, "mA instance should not be NULL");
     mu_assert(mB != NULL, "mB instance should not be NULL");
 
@@ -47,8 +47,8 @@ char *test_good_demensions_2()
 
 char *test_bad_demensions_1()
 {
-    struct MATRIX *mA = matrix_create(4, 4, 3);
-    struct MATRIX *mB = matrix_create(8, 4, 3);
+    struct MATRIX *mA = matrix_create_scalar(4, 4, 3);
+    struct MATRIX *mB = matrix_create_scalar(8, 4, 3);
     mu_assert(mA != NULL, "mA instance should not be NULL");
     mu_assert(mB != NULL, "mB instance should not be NULL");
 
@@ -62,8 +62,8 @@ char *test_bad_demensions_1()
 
 char *test_bad_demensions_2()
 {
-    struct MATRIX *mA = matrix_create(4, 8, 3);
-    struct MATRIX *mB = matrix_create(4, 4, 3);
+    struct MATRIX *mA = matrix_create_scalar(4, 8, 3);
+    struct MATRIX *mB = matrix_create_scalar(4, 4, 3);
     mu_assert(mA != NULL, "mA instance should not be NULL");
     mu_assert(mB != NULL, "mB instance should not be NULL");
 

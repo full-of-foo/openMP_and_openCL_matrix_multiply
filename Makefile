@@ -53,7 +53,7 @@ build-openMP-profiling: CFLAGS += -O3 -g3 $(OPENMP_CLIBFLAGS) $(UTILS_CLIBFLAGS)
 build-openMP-profiling: $(OPENMP_PROFILING_OBJECTS)
 
 profile: build-optimised build-openMP-profiling
-	$(OPENMP_PROFILING_OBJECTS)
+	$(OPENMP_PROFILING_OBJECTS) > openMP_results.csv
 
 tests: build tests-utils tests-openMp clean-logs
 	sh ./runtests.sh
