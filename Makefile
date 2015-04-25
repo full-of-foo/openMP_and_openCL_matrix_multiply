@@ -13,6 +13,7 @@ OPENMP_LIB_DIR=$(OPENMP_DIR)src
 OPENMP_PROFILING_DIR=$(OPENMP_LIB_DIR)/profiling/
 OPENCL_DIR=openCL_app/
 OPENCL_LIB_DIR=$(OPENCL_DIR)src
+OPENCL_PROFILING_DIR=$(OPENCL_LIB_DIR)/profiling/
 
 UTILS_AR_TARGET=$(UTILS_LIB_DIR)/libmatrixutils.a
 OPENMP_AR_TARGET=$(OPENMP_LIB_DIR)/mp_mm.a
@@ -30,16 +31,17 @@ OPENMP_TESTS=$(patsubst %.c,%,$(OPENMP_TEST_SOURCES))
 OPENMP_PROFILING_SOURCES=$(wildcard $(OPENMP_PROFILING_DIR)*.c)
 OPENMP_PROFILING_OBJECTS=$(patsubst %.c,%,$(OPENMP_PROFILING_SOURCES))
 OPENCL_SOURCES=$(wildcard $(OPENCL_DIR)src/*.c)
+OPENCL_PROFILING_SOURCES=$(wildcard $(OPENCL_PROFILING_DIR)*.c)
+OPENCL_PROFILING_OBJECTS=$(patsubst %.c,%,$(OPENCL_PROFILING_SOURCES))
 
 SOURCES=$(UTILS_SOURCES) $(UTILS_TEST_SOURCES) $(OPENMP_SOURCES) $(OPENMP_TEST_SOURCES)
-SOURCES+=$(OPENMP_PROFILING_SOURCES) $(OPENCL_SOURCES)
+SOURCES+=$(OPENMP_PROFILING_SOURCES) $(OPENCL_SOURCES) $(OPENCL_PROFILING_SOURCES)
 OBJECTS=$(UTILS_AR_TARGET) $(OPENMP_AR_TARGET) $(OPENMP_OBJECTS) $(OPENMP_TESTS) $(UTILS_OBJECTS)
-OBJECTS+=$(UTILS_TESTS) $(OPENMP_PROFILING_OBJECTS) $(OPENCL_TARGET)
+OBJECTS+=$(UTILS_TESTS) $(OPENMP_PROFILING_OBJECTS) $(OPENCL_TARGET) $(OPENCL_PROFILING_OBJECTS)
 
 all: build tests
 
-
-build: build-utils build-openMP
+build: build-utils build-openMP build-openCL
 
 build-utils: CFLAGS += -fPIC $(UTILS_CLIBFLAGS)
 build-utils: $(UTILS_OBJECTS)
@@ -52,20 +54,23 @@ build-openMP: $(OPENMP_OBJECTS)
 	$(AR) rcs $(OPENMP_AR_TARGET) $(OPENMP_OBJECTS)
 	ranlib $(OPENMP_AR_TARGET)
 
+build-openCL: build-utils
+	$(CL_CC) $(CLFLAGS) -O3 $(UTILS_CLIBFLAGS) $(UTILS_AR_TARGET) -o $(OPENCL_TARGET) $(OPENCL_SOURCES)
+
 build-optimised: CFLAGS += -O3
 build-optimised: build
 
 build-openMP-profiling: CFLAGS += -O3 -g3 $(OPENMP_CLIBFLAGS) $(UTILS_CLIBFLAGS) $(OPENMP_AR_TARGET) $(UTILS_AR_TARGET)
 build-openMP-profiling: $(OPENMP_PROFILING_OBJECTS)
 
-build-openCL-profiling: build-optimised
-	$(CL_CC) $(CLFLAGS) -O3 $(UTILS_CLIBFLAGS) $(UTILS_AR_TARGET) -o $(OPENCL_TARGET) $(OPENCL_SOURCES)
+build-openCL-profiling: CFLAGS += -O3
+build-openCL-profiling: $(OPENCL_PROFILING_OBJECTS)
 
 profile-openMP: build-optimised build-openMP-profiling
 	$(OPENMP_PROFILING_OBJECTS) > openMP_results.csv
 
-profile-openCL: build-openCL-profiling
-	$(OPENCL_TARGET)
+profile-openCL: build-optimised build-openCL-profiling
+	$(OPENCL_PROFILING_OBJECTS) > openCL_results.csv
 
 tests: build tests-utils tests-openMp clean-logs
 	sh ./runtests.sh
