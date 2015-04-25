@@ -2,6 +2,8 @@
 *.DS_Store
 
 openMP_app/src/profiling/*
+!openCL_app/src/profiling/cl_profiling.c
+openMP_app/src/profiling/*
 !openMP_app/src/profiling/mp_profiling.c
 
 */bin
