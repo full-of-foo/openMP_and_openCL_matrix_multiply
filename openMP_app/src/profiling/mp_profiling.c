@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
         sprintf(data[i+1][0], row_title);
         for (j=0; j<RUNS_PER_BENCHMARK+1; j++){
             sprintf(data[0][j+1], "%d", j+1);
-            sprintf(data[i+1][j+1], "%g", get_benchmark_time(demensions[i][0],demensions[i][1],
+            sprintf(data[i+1][j+1], "%.6f", get_benchmark_time(demensions[i][0],demensions[i][1],
                                                              demensions[i][0],demensions[i][1]));
         }
     }

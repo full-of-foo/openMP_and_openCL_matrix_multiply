@@ -159,16 +159,15 @@ void run_data_parallel_multiplication(cl_int a_rows, cl_int b_rows)
     clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &time_start, NULL);
     clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &time_end, NULL);
 
-    unsigned long nseconds = (unsigned long)(((time_end - time_start)));
-    debug("Execution time in: %f seconds", ((double)nseconds/1000000000.0f));
-    printf("%f", ((double)nseconds/1000000000.0f));
+    double nseconds = (time_end - time_start);
+    debug("Execution time in: %.6f seconds", nseconds/1000000000.0f);
+    printf("%.6f", nseconds/1000000000.0f);
 
-    debug("14: Transfering data to host and taking a little nap");
+    debug("14: Transfering data to host");
     res = clEnqueueReadBuffer(command_queue, C_mem, CL_TRUE, 0, sizeof(cl_float)*(a_rows*b_rows),c_data, 0, NULL, NULL);
     clFinish(command_queue);
     clFlush(command_queue);
     cleanup();
-    usleep(1000*1000);
 }
 
 int main(int argc, char** argv)
