@@ -2,7 +2,7 @@ CC=gcc-4.9
 CL_CC=gcc
 AR=ar
 CFLAGS=-std=c99 -Wall -g -DNDEBUG -fopenmp $(OPTFLAGS)
-CLFLAGS=-std=c99 -Wall -framework opencl
+CLFLAGS=-std=c99 -Wall -DNDEBUG -framework opencl
 UTILS_CLIBFLAGS=-I$(CURDIR)/$(UTILS_LIB_DIR)
 OPENMP_CLIBFLAGS=-I$(CURDIR)/$(OPENMP_LIB_DIR)
 
@@ -39,7 +39,7 @@ OBJECTS+=$(UTILS_TESTS) $(OPENMP_PROFILING_OBJECTS) $(OPENCL_TARGET)
 all: build tests
 
 
-build: build-utils build-openMP build-openCL
+build: build-utils build-openMP
 
 build-utils: CFLAGS += -fPIC $(UTILS_CLIBFLAGS)
 build-utils: $(UTILS_OBJECTS)
@@ -52,17 +52,20 @@ build-openMP: $(OPENMP_OBJECTS)
 	$(AR) rcs $(OPENMP_AR_TARGET) $(OPENMP_OBJECTS)
 	ranlib $(OPENMP_AR_TARGET)
 
-build-openCL:
-	$(CL_CC) $(CLFLAGS) -o $(OPENCL_TARGET) $(OPENCL_SOURCES)
-
 build-optimised: CFLAGS += -O3
 build-optimised: build
 
 build-openMP-profiling: CFLAGS += -O3 -g3 $(OPENMP_CLIBFLAGS) $(UTILS_CLIBFLAGS) $(OPENMP_AR_TARGET) $(UTILS_AR_TARGET)
 build-openMP-profiling: $(OPENMP_PROFILING_OBJECTS)
 
-profile: build-optimised build-openMP-profiling
+build-openCL-profiling: build-optimised
+	$(CL_CC) $(CLFLAGS) -O3 $(UTILS_CLIBFLAGS) $(UTILS_AR_TARGET) -o $(OPENCL_TARGET) $(OPENCL_SOURCES)
+
+profile-openMP: build-optimised build-openMP-profiling
 	$(OPENMP_PROFILING_OBJECTS) > openMP_results.csv
+
+profile-openCL: build-openCL-profiling
+	$(OPENCL_TARGET)
 
 tests: build tests-utils tests-openMp clean-logs
 	sh ./runtests.sh

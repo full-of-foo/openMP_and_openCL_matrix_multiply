@@ -1,15 +1,12 @@
-__kernel void cl_mm(__global float *A, __global float *B, __global float *C, const int size)
+__kernel void cl_mm(__global float *A_mem, __global float *B_mem, __global float *C_mem, int a_rows, int b_rows)
 {
-    int x = get_global_id(0);
-    int y = get_global_id(1);
+    int i = get_global_id(0);
+    int j = get_global_id(1);
     int k;
 
-    float tmp = 0.0;
+    float value = 0.0;
+    for (k=0; k<a_rows; k++)
+        value += A_mem[j*a_rows+k] * B_mem[k*b_rows+i];
 
-    // Matrix multiply
-    for (k = 0; k < size; k++) {
-        tmp += A[y*size + k] * B[k*size + x];
-    }
-
-    C[y*size + x] = tmp;
+    C_mem[j*a_rows+i] = value; // write to device mem
 }
