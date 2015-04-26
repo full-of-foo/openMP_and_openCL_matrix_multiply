@@ -16,6 +16,4 @@ void matrix_destroy(struct MATRIX *matrix);
 
 void matrix_print(struct MATRIX *matrix);
 
-float **get_empty_C_p(int aRows, int aCols);
-
 #endif

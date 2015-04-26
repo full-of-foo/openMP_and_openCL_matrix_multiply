@@ -1,7 +1,10 @@
 .DS_Store
 *.DS_Store
 
-openMP_app/src/profiling/*
+openCL_app/src/*
+!openCL_app/src/*.c
+!openCL_app/src/*.cl
+openCL_app/src/profiling/*
 !openCL_app/src/profiling/cl_profiling.c
 openMP_app/src/profiling/*
 !openMP_app/src/profiling/mp_profiling.c
